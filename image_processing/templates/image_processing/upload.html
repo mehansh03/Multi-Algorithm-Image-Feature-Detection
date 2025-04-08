@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Analysis Tool - Upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2ecc71;
+            --text-color: #2c3e50;
+        }
+        body {
+            background: linear-gradient(135deg, #c2e0ff 0%, #e5f3ff 100%);
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-color);
+            padding: 20px 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            border-bottom: 1px solid #e1e8ed;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+        .form-control {
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        .file-info {
+            padding: 8px;
+            background-color: #f5f8fa;
+            text-align: center;
+            color: #888;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .progress {
+            height: 10px;
+            margin-top: 15px;
+            display: none;
+            border-radius: 10px;
+        }
+        .algo-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-camera"></i> Vision Analysis Tool</h1>
+            <p>Upload two images to analyze using advanced computer vision algorithms</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-upload"></i> Image Upload</h2>
+            </div>
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="image1" class="form-label">Image 1:</label>
+                    <input type="file" class="form-control" name="image1" id="image1" accept="image/*" required>
+                    <div class="file-info" id="fileInfo1">No file selected</div>
+                </div>
+                <div class="mb-3">
+                    <label for="image2" class="form-label">Image 2:</label>
+                    <input type="file" class="form-control" name="image2" id="image2" accept="image/*" required>
+                    <div class="file-info" id="fileInfo2">No file selected</div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-cogs"></i> Process Images
+                </button>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h3><i class="fas fa-info-circle"></i> About This Tool</h3>
+            <p>This tool uses advanced computer vision algorithms to analyze your images:</p>
+            <div class="algo-info">
+                <h5>SIFT (Scale-Invariant Feature Transform)</h5>
+                <p>Detects and matches distinctive features between images regardless of scale, rotation, or lighting.</p>
+                
+                <h5>RANSAC (Random Sample Consensus)</h5>
+                <p>Filters out mismatched points and calculates the geometric transformation between images.</p>
+                
+                <h5>Harris Corner Detection</h5>
+                <p>Identifies corners and distinct points in images for feature tracking and matching.</p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3 mb-5">
+            <p>Vision Analysis Tool &copy; 2025 | <a href="{% url 'image_processing:results_list' %}">View All Results</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const infoId = this.id === 'image1' ? 'fileInfo1' : 'fileInfo2';
+                const info = document.getElementById(infoId);
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    const size = file.size < 1024 ? file.size + ' bytes' : 
+                                file.size < 1048576 ? (file.size / 1024).toFixed(1) + ' KB' : 
+                                (file.size / 1048576).toFixed(1) + ' MB';
+                    info.textContent = `${file.name} (${size})`;
+                    info.style.color = '#333';
+                }
+            });
+        });
+        
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const file1 = document.getElementById('image1').files[0];
+            const file2 = document.getElementById('image2').files[0];
+            
+            if (!file1 || !file2 || !file1.type.startsWith('image/') || !file2.type.startsWith('image/')) {
+                e.preventDefault();
+                alert('Please upload two valid image files!');
+                return;
+            }
+            
+            document.querySelector('.progress').style.display = 'block';
+            let width = 0;
+            const interval = setInterval(() => {
+                width = Math.min(width + 5, 95);
+                document.querySelector('.progress-bar').style.width = width + '%';
+            }, 300);
+        });
+    </script>
+</body>
+</html>

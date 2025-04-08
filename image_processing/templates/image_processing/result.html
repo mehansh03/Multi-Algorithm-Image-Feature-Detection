@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Analysis Tool - Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2ecc71;
+            --accent-color: #9b59b6;
+            --text-color: #2c3e50;
+        }
+        body {
+            background: linear-gradient(135deg, #c2e0ff 0%, #e5f3ff 100%);
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-color);
+            padding: 20px 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            border-bottom: 1px solid #e1e8ed;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .image-container img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s ease;
+            display: block;
+        }
+        .image-container:hover img {
+            transform: scale(1.02);
+        }
+        .caption {
+            background-color: rgba(52, 152, 219, 0.8);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .algorithm-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .btn-back, .btn-results {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-back {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-results {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .btn-back:hover, .btn-results:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: var(--primary-dark);
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Analysis Results</h1>
+            <p>Computer vision analysis completed successfully</p>
+        </div>
+        
+        <div class="result-card">
+            <div class="card-header">
+                <h2><i class="fas fa-fingerprint"></i> SIFT Keypoint Matching</h2>
+            </div>
+            
+            <div class="algorithm-info">
+                <h4>About SIFT Algorithm</h4>
+                <p>SIFT detects distinctive features that remain consistent despite changes in scale, rotation, and lighting. It identifies keypoints and creates descriptors that can be matched between images.</p>
+                <p><strong>Applications:</strong> Object recognition, image stitching, 3D modeling, gesture recognition, video tracking</p>
+            </div>
+            
+            {% if sift_image %}
+            <div class="image-container">
+                <img src="{{ sift_image }}" alt="SIFT Matches">
+                <div class="caption">SIFT Keypoint Detection and Matching</div>
+            </div>
+            {% else %}
+            <p class="alert alert-warning">No SIFT matches available.</p>
+            {% endif %}
+        </div>
+        
+        {% if ransac_image %}
+        <div class="result-card">
+            <div class="card-header">
+                <h2><i class="fas fa-project-diagram"></i> RANSAC Transformation</h2>
+            </div>
+            
+            <div class="algorithm-info">
+                <h4>About RANSAC Algorithm</h4>
+                <p>RANSAC identifies and filters out mismatched points (outliers) to find the best geometric transformation between images. It iteratively tests random subsets of matches to find the most consistent model.</p>
+            </div>
+            
+            <div class="image-container">
+                <img src="{{ ransac_image }}" alt="RANSAC Transform">
+                <div class="caption">RANSAC Outlier Removal and Transformation</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="result-card">
+            <div class="card-header">
+                <h2><i class="fas fa-th"></i> Harris Corner Detection</h2>
+            </div>
+            
+            <div class="algorithm-info">
+                <h4>About Harris Corner Detection</h4>
+                <p>Harris Corner Detector identifies corners in images by analyzing intensity changes in multiple directions. Red dots in the image indicate detected corners - areas where the image has significant variation in two directions.</p>
+            </div>
+            
+            {% if harris_image %}
+            <div class="image-container">
+                <img src="{{ harris_image }}" alt="Harris Corners">
+                <div class="caption">Harris Corner Detection Result</div>
+            </div>
+            {% else %}
+            <p class="alert alert-warning">No Harris corners detected.</p>
+            {% endif %}
+        </div>
+        
+        <div class="nav-buttons mb-4">
+            <a href="{% url 'image_processing:upload_images' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Back to Upload</a>
+            <a href="{% url 'image_processing:results_list' %}" class="btn btn-results"><i class="fas fa-list"></i> View All Results</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

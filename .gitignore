@@ -1,0 +1,5 @@
+__pycache__/
+uploads/
+processed/
+static/
+*.sqlite3   
